@@ -384,10 +384,14 @@ impl<COMP: Component> VDiff for VTag<COMP> {
             Reform::Keep => {}
             Reform::Before(before) => {
                 let element = if let Some(ns) = &self.ns {
-                    document().create_element_ns(&ns, &self.tag)
+                    document()
+                        .create_element_ns(&ns, &self.tag)
+                        .expect("can't create element for vtag")
                 } else {
-                    document().create_element(&self.tag)
-                }.expect("can't create element for vtag");
+                    document()
+                        .create_element(&self.tag)
+                        .expect("can't create element for vtag")
+                };
 
                 if let Some(sibling) = before {
                     parent
