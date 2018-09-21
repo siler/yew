@@ -279,36 +279,8 @@ pub fn unpack<COMP: Component>(mut stack: Stack<COMP>) -> VNode<COMP> {
     if stack.len() != 1 {
         panic!(LENGTH_ERROR);
     }
-    let mut node = stack.pop().expect(LENGTH_ERROR);
 
-    // Recursively update tag namespaces
-    // 1. a parent sets a child's namespace, overriding its parent's namespaces
-    // 2. a child adopts its parent's namespace
-    fn proliferate_namespaces<COMP: Component>(node: &mut VNode<COMP>, ns: Option<Cow<'static, str>>) {
-        match node {
-            VNode::VTag(ref mut tag) => {
-                let mut current_ns = ns;
-                if let Some(ref tag_ns) = tag.ns {
-                    current_ns = Some(tag_ns.clone());
-                } else if let Some(ref some_ns) = current_ns {
-                    tag.ns = Some(some_ns.clone());
-                }
-
-                for mut child in &mut tag.childs {
-                    proliferate_namespaces(&mut child, current_ns.clone());
-                }
-            },
-            VNode::VList(ref mut list) => {
-                for mut child in &mut list.childs {
-                    proliferate_namespaces(&mut child, ns.clone());
-                }
-            },
-            VNode::VText(_) | VNode::VComp(_) | VNode::VRef(_) => (),
-        }
-    };
-
-    proliferate_namespaces(&mut node, None);
-    node
+    stack.pop().expect(LENGTH_ERROR)
 }
 
 #[doc(hidden)]
