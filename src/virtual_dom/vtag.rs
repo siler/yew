@@ -383,7 +383,17 @@ impl<COMP: Component> VDiff for VTag<COMP> {
         match reform {
             Reform::Keep => {}
             Reform::Before(before) => {
-                let element = if let Some(ns) = &self.ns {
+                // if namespace not overridden for this tag, inherit it from parent.
+                // if parent doesn't have one, either, then don't specify one.
+                let ns = self.ns.as_ref().map_or_else(
+                    || parent
+                        .as_ref()
+                        .clone()
+                        .downcast::<Element>()
+                        .and_then(|e| e.namespace_uri()),
+                    |ns| Some(ns.clone().into_owned()));
+
+                let element = if let Some(ns) = ns {
                     document()
                         .create_element_ns(&ns, &self.tag)
                         .expect("can't create element for vtag")
