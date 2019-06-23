@@ -80,6 +80,12 @@ macro_rules! html_impl {
         $stack.push(vtag.into());
         html_impl! { @vtag $stack ($($tail)*) }
     };
+    // Set namespace
+    (@vtag $stack:ident (xmlns = $value:expr, $($tail:tt)*)) => {
+        $crate::macros::set_namespace(&mut $stack, $value);
+        html_impl! { @vtag $stack ($($tail)*) }
+    };
+
     // Set multiple classes
     // PATTERN: class=("class-1", "class-2", local_variable),
     // eg: class=($expr, ...), ..
@@ -405,6 +411,20 @@ pub fn set_checked<COMP: Component>(stack: &mut Stack<COMP>, value: bool) {
         panic!("no tag to set checked: {}", value);
     }
 }
+
+#[doc(hidden)]
+pub fn set_namespace<COMP, NS>(stack: &mut Stack<COMP>, namespace: NS)
+where
+    COMP: Component,
+    NS: Into<Option<Cow<'static, str>>> {
+    if let Some(&mut VNode::VTag(ref mut vtag)) = stack.last_mut() {
+        vtag.set_namespace(namespace);
+    } else {
+        use std::ops::Deref;
+        panic!("no tag to set namespace: {}", namespace.into().as_ref().map(|c| c.deref()).unwrap_or(""));
+    }
+}
+
 
 #[doc(hidden)]
 pub fn add_attribute<COMP: Component, T: ToString>(stack: &mut Stack<COMP>, name: &str, value: T) {

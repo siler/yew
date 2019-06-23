@@ -119,6 +119,13 @@ impl<COMP: Component> VTag<COMP> {
         self.checked = value;
     }
 
+    /// Sets `namespace` property of a tag
+    pub fn set_namespace<NS>(&mut self, value: NS)
+    where
+        NS: Into<Option<Cow<'static, str>>> {
+        self.ns = value.into();
+    }
+
     /// Adds attribute to a virtual node. Not every attribute works when
     /// it set as attribute. We use workarounds for:
     /// `class`, `type/kind`, `value` and `checked`.
