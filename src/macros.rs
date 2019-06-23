@@ -82,7 +82,7 @@ macro_rules! html_impl {
     };
     // Set namespace
     (@vtag $stack:ident (xmlns = $value:expr, $($tail:tt)*)) => {
-        $crate::macros::set_namespace(&mut $stack, $value);
+        $crate::macros::set_namespace(&mut $stack, Some($value.into()));
         html_impl! { @vtag $stack ($($tail)*) }
     };
 
