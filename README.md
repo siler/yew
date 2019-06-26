@@ -1,12 +1,12 @@
 [![Build Status](https://api.travis-ci.org/DenisKolodin/yew.svg)](https://travis-ci.org/DenisKolodin/yew)
-[![Gitter chat](https://badges.gitter.im/yewframework.png)](https://gitter.im/yewframework/Lobby "Gitter chat")
+[![Gitter chat](https://badges.gitter.im/yewframework.svg)](https://gitter.im/yewframework/Lobby "Gitter chat")
 
 # Yew
 
-Yew is a modern Rust framework inspired by Elm and ReactJS for
+**Yew** (pronounced `/juː/`, the same way as "you") is a modern Rust framework inspired by Elm and ReactJS for
 creating multi-threaded frontend apps with WebAssembly.
 
-**NEW!** The framework supports ***multi-threading & concurrency*** out of the box.
+The framework supports ***multi-threading & concurrency*** out of the box.
 It uses [Web Workers API] to spawn actors (agents) in separate threads
 and uses a local scheduler attached to a thread for concurrent tasks.
 
@@ -29,9 +29,7 @@ Yew implements strict application state management based on message passing and 
 `src/main.rs`
 
 ```rust
-#[macro_use]
-extern crate yew;
-use yew::prelude::*;
+use yew::{html, Component, ComponentLink, Html, Renderable, ShouldRender};
 
 struct Model { }
 
@@ -69,9 +67,7 @@ impl Renderable<Model> for Model {
 }
 
 fn main() {
-    yew::initialize();
-    App::<Model>::new().mount_to_body();
-    yew::run_loop();
+    yew::start_app::<Model>();
 }
 ```
 
@@ -108,7 +104,7 @@ Agents are separate tasks that work concurrently.
 Create your worker/agent (in `context.rs` for example):
 
 ```rust
-use yew::prelude::worker::*;
+use yew::worker::*;
 
 struct Worker {
     link: AgentLink<Worker>,
@@ -299,6 +295,7 @@ It's a handy alternative to subscriptions.
 
 Implemented:
 * `IntervalService`
+* `RenderService`
 * `TimeoutService`
 * `StorageService`
 * `DialogService`
@@ -410,12 +407,6 @@ yew = { git = "https://github.com/DenisKolodin/yew", features = ["toml", "yaml",
 
 Clone or download this repository.
 
-Add necessary targets to your compiler:
-
-    $ rustup target add wasm32-unknown-unknown
-
-> We recommend to use `wasm32-unknown-unknown` target where possible, but some third-party crates can be compiled with `wasm32-unknown-emscripten` target only.
-
 To build this project you need to have [cargo-web] installed:
 
     $ cargo install cargo-web
@@ -424,7 +415,7 @@ To build this project you need to have [cargo-web] installed:
 
 ### Build
 
-    $ cargo web build --target=wasm32-unknown-unknown
+    $ cargo web build
 
 ### Running Tests
 
@@ -444,10 +435,9 @@ To run an optimised build instead of a debug build use:
 
     $ cargo web start --release
 
-**Note**: By default, `cargo-web` will use Emscripten to generate asm.js. You can also
-compile to WebAssembly if you add either `--target=wasm32-unknown-emscripten` or
-`--target=wasm32-unknown-unknown`, where the first one will use Emscripten and
-the second one will use Rust's native WebAssembly backend (Rust nightly only!).
+This will use the `wasm32-unknown-unknown` target by default, which is Rust's native WebAssembly target.
+The Emscripten-based `wasm32-unknown-emscripten` and `asmjs-unknown-emscripten` targets are also supported
+if you tell the `cargo-web` to build for them using the `--target` parameter.
 
 [counter]: examples/counter
 [crm]: examples/crm

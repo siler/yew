@@ -1,19 +1,12 @@
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-#[macro_use]
-extern crate yew;
-extern crate stdweb;
-
 mod router;
 mod routing;
 mod b_component;
 use b_component::BModel;
 
+use log::info;
 use router::Route;
-use yew::prelude::*;
+use yew::{html, Bridge, Component, ComponentLink, Html, Renderable, ShouldRender};
+use yew::agent::Bridged;
 
 
 pub enum Child {
@@ -36,7 +29,7 @@ impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
 
         let callback = link.send_back(|route: Route<()>| Msg::HandleRoute(route));
         let mut router = router::Router::bridge(callback);

@@ -50,8 +50,8 @@ pub struct VTag<COMP: Component> {
 
 impl<COMP: Component> VTag<COMP> {
     /// Creates a new `VTag` instance with `tag` name (cannot be changed later in DOM).
-    pub fn new<S, NS>(tag: S, ns: NS) -> Self 
-    where 
+    pub fn new<S, NS>(tag: S, ns: NS) -> Self
+    where
         S: Into<Cow<'static, str>>,
         NS: Into<Option<Cow<'static, str>>>
     {
@@ -117,6 +117,13 @@ impl<COMP: Component> VTag<COMP> {
     /// (Not a value of node's attribute).
     pub fn set_checked(&mut self, value: bool) {
         self.checked = value;
+    }
+
+    /// Sets `namespace` property of a tag
+    pub fn set_namespace<NS>(&mut self, value: NS)
+    where
+        NS: Into<Option<Cow<'static, str>>> {
+        self.ns = value.into();
     }
 
     /// Adds attribute to a virtual node. Not every attribute works when
@@ -371,7 +378,9 @@ impl<COMP: Component> VDiff for VTag<COMP> {
                     let node = vnode.detach(parent);
                     (Reform::Before(node), None)
                 }
-                None => (Reform::Before(None), None),
+                None => {
+                    (Reform::Before(None), None)
+                },
             }
         };
 
@@ -384,10 +393,10 @@ impl<COMP: Component> VDiff for VTag<COMP> {
             Reform::Keep => {}
             Reform::Before(before) => {
                 let element = if let Some(ns) = &self.ns {
-                    document().create_element_ns(&ns, &self.tag)
+                    document().create_element_ns(&ns, &self.tag).expect("can't create element for vtag")
                 } else {
-                    document().create_element(&self.tag)
-                }.expect("can't create element for vtag");
+                    document().create_element(&self.tag).expect("can't create element for vtag")
+                };
 
                 if let Some(sibling) = before {
                     parent
@@ -467,7 +476,7 @@ impl<COMP: Component> VDiff for VTag<COMP> {
 }
 
 impl<COMP: Component> fmt::Debug for VTag<COMP> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "VTag {{ tag: {} }}", self.tag)
     }
 }

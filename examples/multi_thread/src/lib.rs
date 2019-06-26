@@ -1,15 +1,10 @@
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate yew;
-
 pub mod native_worker;
 pub mod job;
 pub mod context;
 
-use yew::prelude::*;
+use log::info;
+use yew::{html, Component, ComponentLink, Html, Renderable, ShouldRender};
+use yew::worker::*;
 
 pub struct Model {
     worker: Box<Bridge<native_worker::Worker>>,
@@ -29,7 +24,7 @@ impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
         let callback = link.send_back(|_| Msg::DataReceived);
         let worker = native_worker::Worker::bridge(callback);
 
